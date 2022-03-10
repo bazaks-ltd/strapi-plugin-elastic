@@ -1,5 +1,7 @@
 const _ = require('lodash');
+
 const { compareDataWithMap } = require('./helper');
+const { first } = require('lodash');
 module.exports = {
   /**
    *
@@ -213,6 +215,7 @@ module.exports = {
     setting.importLimit = setting.importLimit || 3000;
 
     const targetModel = models.find((item) => item.model === model);
+    strapi.log.debug('testing');
 
     let indexConfig = strapi.elastic.indicesMapping[targetModel.model];
 
@@ -251,6 +254,22 @@ module.exports = {
           },
           [...targetModel.relations]
         );
+
+      // strapi.log.debug('b', JSON.stringify(result.map(r=> r.main_image)));
+
+      result = result.map(r => {
+        targetModel.relationsFilter.forEach(({ relation, filter }) => {
+          const rel = r[relation];
+          if(rel != null) {
+            r[relation] = filter(rel);
+          }
+        });
+
+        return r;
+      });
+
+      // strapi.log.debug('a', JSON.stringify(result.map(r=> r.main_image)));
+
       if (result.length === 0) break;
 
       if (

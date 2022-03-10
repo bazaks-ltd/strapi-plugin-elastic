@@ -13,6 +13,7 @@ const modelConfigTemplate = (model) => ({
   migration: false,
   pk: 'id',
   relations: [],
+  relationsFilter: [],
   conditions: {},
   fillByResponse: true,
   supportAdminPanel: true,
