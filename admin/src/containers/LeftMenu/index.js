@@ -4,10 +4,6 @@ import Wrapper from './Wrapper';
 import LeftMenuItem from '../../Components/LeftMenuItem';
 
 const LeftMenu = ({ models, activeModel, setActiveModel }) => {
-  console.log(
-    '🚀 ~ file: index.js ~ line 7 ~ LeftMenu ~ activeModel',
-    activeModel
-  );
   return (
     <Wrapper>
       <h4 className="p-3">Models</h4>
