@@ -1,7 +1,25 @@
 const _ = require('lodash');
 
 const { compareDataWithMap } = require('./helper');
-const { first } = require('lodash');
+
+/**
+ * filters and returns result using relationsFilter.filter 
+ * @param {*} result 
+ * @param {*} relationsFilter 
+ * @returns 
+ */
+const filterRelations = (result, relationsFilter) => 
+  result.map(r => {
+    relationsFilter.forEach(({ relation, filter }) => {
+      const rel = r[relation];
+      if(rel != null) {
+        r[relation] = filter(rel);
+      }
+    });
+
+    return r;
+  });
+
 module.exports = {
   /**
    *
@@ -178,9 +196,11 @@ module.exports = {
     relations = relations || targetModel.relations;
     conditions = conditions || targetModel.conditions;
 
-    const data = await strapi
+    let data = await strapi
       .query(targetModel.model, targetModel.plugin)
       .find({ id_in: [...id_in], ...conditions }, [...relations]);
+
+    data = filterRelations(data, targetModel.relationsFilter);
 
     if (!data) return null;
 
@@ -215,7 +235,6 @@ module.exports = {
     setting.importLimit = setting.importLimit || 3000;
 
     const targetModel = models.find((item) => item.model === model);
-    strapi.log.debug('testing');
 
     let indexConfig = strapi.elastic.indicesMapping[targetModel.model];
 
@@ -254,21 +273,8 @@ module.exports = {
           },
           [...targetModel.relations]
         );
-
-      // strapi.log.debug('b', JSON.stringify(result.map(r=> r.main_image)));
-
-      result = result.map(r => {
-        targetModel.relationsFilter.forEach(({ relation, filter }) => {
-          const rel = r[relation];
-          if(rel != null) {
-            r[relation] = filter(rel);
-          }
-        });
-
-        return r;
-      });
-
-      // strapi.log.debug('a', JSON.stringify(result.map(r=> r.main_image)));
+      
+      result = filterRelations(result, targetModel.relationsFilter);
 
       if (result.length === 0) break;
 
