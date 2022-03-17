@@ -199,8 +199,9 @@ module.exports = {
     let data = await strapi
       .query(targetModel.model, targetModel.plugin)
       .find({ id_in: [...id_in], ...conditions }, [...relations]);
-
-    data = filterRelations(data, targetModel.relationsFilter);
+    
+    if(!!targetModel.relationsFilter)
+      data = filterRelations(data, targetModel.relationsFilter);
 
     if (!data) return null;
 
@@ -273,8 +274,9 @@ module.exports = {
           },
           [...targetModel.relations]
         );
-      
-      result = filterRelations(result, targetModel.relationsFilter);
+
+      if(!!targetModel.relationsFilter)
+        result = filterRelations(result, targetModel.relationsFilter);
 
       if (result.length === 0) break;
 
