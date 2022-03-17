@@ -99,7 +99,7 @@ module.exports = {
       _.pick(body, pk) || _.pick(ctx.params, pk) || _.pick(ctx.query, pk);
 
     const isPostOrPutMethod = method === 'POST' || method === 'PUT';
-    const isDeleteMethod = ctx.request.method === 'DELETE';
+    const isDeleteMethod = ctx.request.method === 'DELETE' || isPostOrPutMethod && _.last(ctx.path.split('/')) == 'bulkDelete';
 
     if (isDeleteMethod) {
       await deleteData(url, body, targetModel, id);
