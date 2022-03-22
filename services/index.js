@@ -1,4 +1,5 @@
 const {
+  bulkCreateOrUpdate,
   createOrUpdate,
   destroy,
   find,
@@ -16,6 +17,7 @@ const helper = require('./helper');
 
 module.exports = {
   createOrUpdate,
+  bulkCreateOrUpdate,
   find,
   destroy,
   elasticsearchManager,

@@ -180,6 +180,52 @@ module.exports = {
     }
   },
   /**
+   * Create or Update in bulk. Currently designed for use with import-export plugin
+   */
+  bulkCreateOrUpdate: async (model, data) => {
+    const { models } = strapi.config.elasticsearch;
+    const targetModel = await models.find(item => item.model === model);
+
+    if(!targetModel) {
+      strapi.log.error('model not found');
+      return;
+    }
+
+    if(!!targetModel.relationsFilter)
+      data = filterRelations(data, targetModel.relationsFilter);
+
+    // create
+    let body = data.filter(d => !d._updated)
+      .map(d => _.omit(d, '_updated'))
+      .flatMap(d => [
+        { 
+          create: {
+            _index: targetModel.index,
+            _id: `${d.id}`
+          } 
+        },
+        d
+      ]);
+
+    // update
+    body = body.concat(
+      data.filter(d => d._updated)
+        .map(d => _.omit(d, '_updated'))
+        .flatMap(d => [
+          {
+            update: {
+              _index: targetModel.index,
+              _id: `${d.id}`,
+            },
+          },
+          { doc: d }
+        ])
+    );
+
+    result = await strapi.elastic.bulk({ body });
+    return result;
+  },
+  /**
    *
    * @param {string} model
    * @param {Object} param1
