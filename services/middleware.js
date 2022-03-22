@@ -4,6 +4,7 @@ const {
   findModel,
   isContentManagerUrl,
   isDeleteAllUrl,
+  findImportExportModel,
   getDeleteIds,
   checkRequest,
 } = require('./helper');
@@ -14,7 +15,7 @@ const {
  * @param {string} url
  * @returns {null| Object}
  */
-const findTargetModel = async (models, url) => {
+const findTargetModel = async (models, url, importExportBody) => {
   let targetModel;
 
   targetModel = await isContentManagerUrl({ models, reqUrl: url });
@@ -25,6 +26,10 @@ const findTargetModel = async (models, url) => {
 
   if (!targetModel) {
     targetModel = await findModel({ models, reqUrl: url });
+  }
+
+  if(!targetModel) {
+    targetModel = await findImportExportModel({ models, reqUrl: url, importExportBody });
   }
 
   return targetModel;
@@ -75,7 +80,8 @@ const createOrUpdateData = async (body, targetModel, id) => {
 
 module.exports = {
   /**
-   *
+   * Intercepts all requests and checks if an action needs to be taken
+   * 
    * @param {Object} ctx request context
    */
   elasticsearchManager: async (ctx) => {
@@ -84,10 +90,11 @@ module.exports = {
 
     const { url, method } = ctx.request;
     const { body } = ctx;
+    const importExportBody = ctx.request.body;
     const { models } = strapi.config.elasticsearch;
 
-    const targetModel = await findTargetModel(models, url);
-    if (!targetModel) return;
+    const targetModel = await findTargetModel(models, url, importExportBody);
+    if (!targetModel) return; 
 
     // set default value
     targetModel.fillByResponse = _.isBoolean(targetModel.fillByResponse)
@@ -104,7 +111,11 @@ module.exports = {
     if (isDeleteMethod) {
       await deleteData(url, body, targetModel, id);
     } else if (isPostOrPutMethod) {
-      await createOrUpdateData(body, targetModel, id);
+      if(ctx._matchedRoute === '/import-export-content/import') {
+        await strapi.elastic.bulkCreateOrUpdate(targetModel.model, body.results);
+      } else {
+        await createOrUpdateData(body, targetModel, id);
+      }
     }
   },
 };

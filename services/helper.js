@@ -130,6 +130,24 @@ module.exports = {
 
     return targetModel;
   },
+  findImportExportModel: async ({ models, reqUrl, importExportBody }) => {
+    if(reqUrl == "/import-export-content/import" && !!importExportBody) {
+      if(!importExportBody.asDraft) {
+        const modelName = importExportBody.target.info.name;
+        const targetModel = await models.find((item) => item.model === modelName);
+
+        if (
+          !targetModel ||
+          targetModel.enabled === false ||
+          targetModel.supportAdminPanel === false
+        )
+          return;
+
+        return targetModel;
+      }
+    }
+    return;d
+  },
   getDeleteIds: async ({ body, reqUrl }) => {
     const contentManagerUrlPattern =
       /\/content-manager\/(?:collection-types|single-types)\/(\w+)::([a-zA-Z-_]+).([a-zA-Z0-9_-]+)\/actions\/bulkDelete/;
