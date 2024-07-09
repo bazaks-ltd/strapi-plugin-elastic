@@ -146,7 +146,7 @@ module.exports = {
         return targetModel;
       }
     }
-    return;d
+    return;
   },
   getDeleteIds: async ({ body, reqUrl }) => {
     const contentManagerUrlPattern =
@@ -190,6 +190,7 @@ module.exports = {
     });
   },
   compareDataWithMap: ({ properties, docs }) => {
+    const _docs = docs
     // initial variable;
     const elasticSearchNumericTypes = [
       'long',
@@ -317,6 +318,10 @@ module.exports = {
             //
           }
         } else {
+          if (docKey === 'tags') {
+            res[docKey] = _docs[docKey].map(d => ({ id: d.id, tag: d.tag }))
+            dockKeyUsed.push(docKey)
+          }
           //
           //some logic
           //
