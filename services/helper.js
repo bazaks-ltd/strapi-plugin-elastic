@@ -332,6 +332,9 @@ module.exports = {
       for (const key of mainKeys) {
         res[key] = null;
       }
+      if (!docKeys.includes('tags')) {
+        res['tags'] = []
+      }
       result.push(res);
     }
     // return data it depends on outputDataType
