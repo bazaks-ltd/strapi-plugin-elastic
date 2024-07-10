@@ -131,8 +131,8 @@ module.exports = {
     return targetModel;
   },
   findImportExportModel: async ({ models, reqUrl, importExportBody }) => {
-    if(reqUrl == "/import-export-content/import" && !!importExportBody) {
-      if(!importExportBody.asDraft) {
+    if (reqUrl == "/import-export-content/import" && !!importExportBody) {
+      if (!importExportBody.asDraft) {
         const modelName = importExportBody.target.info.name;
         const targetModel = await models.find((item) => item.model === modelName);
 
@@ -390,7 +390,7 @@ module.exports = {
         if (indexMap.status === 200) {
           indicesMapping[model.index] = indexMap.body;
         }
-      } catch (e) {}
+      } catch (e) { }
 
       strapi.elastic.indicesMapping = indicesMapping;
     });
