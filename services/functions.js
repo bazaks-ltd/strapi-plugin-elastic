@@ -157,6 +157,7 @@ module.exports = {
         docs: data,
         properties: indexConfig.mappings.properties,
       });
+      res.result['tags'] = data.tags.map(t => ({ id: t.id, tag: t.tag }))
       data = res.result || data;
     }
 
